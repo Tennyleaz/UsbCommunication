@@ -1,0 +1,160 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".MainActivity"
+    android:orientation="vertical">
+
+    <Button
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/button_height"
+        android:text="@string/str_turn_on"
+        android:id="@+id/btn_turn_on"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="43dp" />
+
+    <Button
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/button_height"
+        android:text="@string/str_turn_off"
+        android:id="@+id/btn_turn_off"
+        android:layout_below="@+id/btn_turn_on"
+        android:layout_alignStart="@+id/btn_turn_on" />
+
+    <ListView
+        android:layout_width="@dimen/list_width"
+        android:layout_height="@dimen/list_height"
+        android:id="@+id/lv_message_box"
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/btn_turn_off" />
+
+    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:layout_alignTop="@+id/btn_turn_on"
+        android:layout_alignStart="@+id/tv1" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Product Name:"
+        android:id="@+id/tv1"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Pname"
+        android:id="@+id/tv2"
+        android:layout_alignTop="@+id/tv1"
+        android:layout_toEndOf="@+id/tv1"
+        android:layout_marginStart="40dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Item Name:"
+        android:id="@+id/tv3"
+        android:layout_below="@+id/tv1"
+        android:layout_alignStart="@+id/tv1"
+        android:layout_marginTop="30dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Iname"
+        android:id="@+id/tv4"
+        android:layout_alignBottom="@+id/tv3"
+        android:layout_alignStart="@+id/tv2" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Input detected:"
+        android:id="@+id/tv5"
+        android:layout_below="@+id/tv3"
+        android:layout_alignStart="@+id/tv3"
+        android:layout_marginTop="30dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Input"
+        android:id="@+id/tv6"
+        android:layout_alignTop="@+id/tv5"
+        android:layout_alignStart="@+id/tv4" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Pass or Fail:"
+        android:id="@+id/tv7"
+        android:layout_below="@+id/tv5"
+        android:layout_alignStart="@+id/tv5"
+        android:layout_marginTop="30dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:layout_alignBottom="@+id/tv7"
+        android:src="@drawable/green_circle"
+        android:layout_alignTop="@+id/tv7"
+        android:layout_alignStart="@+id/tv6" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Arduino:"
+        android:id="@+id/textView2"
+        android:layout_marginStart="70dp"
+        android:layout_alignTop="@+id/tv2"
+        android:layout_toEndOf="@+id/tv2" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Not connected"
+        android:id="@+id/connected"
+        android:textColor="#e60000"
+        android:layout_alignTop="@+id/textView2"
+        android:layout_toEndOf="@+id/textView2"
+        android:layout_marginStart="30dp" />
+
+
+
+    <TableLayout
+        android:id="@+id/TL"
+        android:background="@color/gray"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Large Text"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:id="@+id/msg"/>
+    </TableLayout>
+
+</RelativeLayout>

@@ -7,6 +7,7 @@
     android:orientation="vertical">
 
     <Button
+        android:focusable="false"
         android:layout_width="@dimen/button_width"
         android:layout_height="@dimen/button_height"
         android:text="@string/str_turn_on"
@@ -16,6 +17,7 @@
         android:layout_marginEnd="43dp" />
 
     <Button
+        android:focusable="false"
         android:layout_width="@dimen/button_width"
         android:layout_height="@dimen/button_height"
         android:text="@string/str_turn_off"
@@ -40,7 +42,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Product Name:"
+        android:text="配方名稱:"
         android:id="@+id/tv1"
         android:layout_below="@+id/textView"
         android:layout_alignParentStart="true"
@@ -61,7 +63,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Item Name:"
+        android:text="配方編號:"
         android:id="@+id/tv3"
         android:layout_below="@+id/tv1"
         android:layout_alignStart="@+id/tv1"
@@ -71,7 +73,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Iname"
+        android:text="Pcode"
         android:id="@+id/tv4"
         android:layout_alignBottom="@+id/tv3"
         android:layout_alignStart="@+id/tv2" />
@@ -80,7 +82,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Input detected:"
+        android:text="物料名稱:"
         android:id="@+id/tv5"
         android:layout_below="@+id/tv3"
         android:layout_alignStart="@+id/tv3"
@@ -90,7 +92,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Input"
+        android:text="Iname"
         android:id="@+id/tv6"
         android:layout_alignTop="@+id/tv5"
         android:layout_alignStart="@+id/tv4" />
@@ -99,7 +101,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Pass or Fail:"
+        android:text="物料編號:"
         android:id="@+id/tv7"
         android:layout_below="@+id/tv5"
         android:layout_alignStart="@+id/tv5"
@@ -109,9 +111,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
-        android:layout_alignBottom="@+id/tv7"
+        android:layout_alignBottom="@+id/textView3"
         android:src="@drawable/green_circle"
-        android:layout_alignTop="@+id/tv7"
+        android:layout_alignTop="@+id/textView3"
         android:layout_alignStart="@+id/tv6" />
 
     <TextView
@@ -120,7 +122,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Arduino:"
         android:id="@+id/textView2"
-        android:layout_marginStart="70dp"
+        android:layout_marginStart="150dp"
         android:layout_alignTop="@+id/tv2"
         android:layout_toEndOf="@+id/tv2" />
 
@@ -130,7 +132,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Not connected"
         android:id="@+id/connected"
-        android:textColor="#e60000"
+        android:textColor="#d50000"
         android:layout_alignTop="@+id/textView2"
         android:layout_toEndOf="@+id/textView2"
         android:layout_marginStart="30dp" />
@@ -144,7 +146,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true">
-        <TextView
+        <com.example.tenny.usbcommunication.ScrollForeverTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
@@ -153,8 +155,55 @@
             android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
             android:focusable="true"
-            android:focusableInTouchMode="true"
             android:id="@+id/msg"/>
     </TableLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Scanner:"
+        android:id="@+id/tv8"
+        android:layout_alignBaseline="@+id/tv10"
+        android:layout_alignBottom="@+id/tv10"
+        android:layout_alignStart="@+id/textView2" />
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/scannerIn"
+        android:focusable="true"
+        android:windowSoftInputMode="stateHidden"
+        android:focusableInTouchMode="true"
+        android:layout_alignTop="@+id/tv8"
+        android:layout_toEndOf="@+id/tv9" />
+
+    <TextView
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="0-00000000"
+        android:id="@+id/tv9"
+        android:layout_alignTop="@+id/scannerIn"
+        android:layout_alignStart="@+id/connected" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Pass or Fail:"
+        android:id="@+id/textView3"
+        android:layout_below="@+id/tv7"
+        android:layout_alignStart="@+id/tv7"
+        android:layout_marginTop="30dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Icode"
+        android:id="@+id/tv10"
+        android:layout_alignBottom="@+id/tv7"
+        android:layout_alignStart="@+id/tv6" />
 
 </RelativeLayout>

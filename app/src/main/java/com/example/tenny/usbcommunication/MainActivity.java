@@ -26,8 +26,10 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -51,11 +53,14 @@ public class MainActivity extends Activity {
     private TextViewAdapter messageAdapter;
     private ArrayList<TextView> messageList;
     private AsyncTask<Void, Integer, String> listeningTask;
-    private TextView Pname, Iname, InputName, connectState, message, msg;
+    private TextView Pname, Pcode, Iname, Icode, connectState, message, serialText;
+    private ScrollForeverTextView msg;
+    private EditText scannerInput;
     private ImageView imageStatus;
-    private static ProgressDialog pd;
-    private String str1;
 
+    private static ProgressDialog pd;
+    private String str1, productSerial, itemCode;
+    private AsyncTask task = null;
     private UsbManager manager;
     private UsbDevice device;
     private UsbInterface dataInterface;
@@ -73,13 +78,15 @@ public class MainActivity extends Activity {
         messageAdapter = new TextViewAdapter();
         lvMessageBox.setAdapter(messageAdapter);
         Pname = (TextView) findViewById(R.id.tv2);
-        Iname = (TextView) findViewById(R.id.tv4);
-        InputName = (TextView) findViewById(R.id.tv6);
+        Pcode = (TextView) findViewById(R.id.tv4);
+        Iname = (TextView) findViewById(R.id.tv6);
+        Icode = (TextView) findViewById(R.id.tv10);
         message = (TextView) findViewById(R.id.textView);
-        msg = (TextView) findViewById(R.id.msg);
+        msg = (ScrollForeverTextView) findViewById(R.id.msg);
         connectState = (TextView) findViewById(R.id.connected);
         imageStatus = (ImageView) findViewById(R.id.imageView);
-
+        scannerInput = (EditText) findViewById(R.id.scannerIn);
+        serialText = (TextView) findViewById(R.id.tv9);
 
         if(!isNetworkConnected()){  //close when not connected
             AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
@@ -105,12 +112,32 @@ public class MainActivity extends Activity {
                 }
             }).start();
         }
+
+        TextView.OnEditorActionListener exampleListener = new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
+                    //example_confirm();//match this behavior to your 'Send' (or Confirm) button
+                    productSerial = exampleView.getText().toString();
+                    exampleView.setText("");
+                    Log.d("Mylog", "Scanner enter captured: " + productSerial);
+                    serialText.setText(productSerial);
+                    if( productSerial.equals(itemCode) )
+                        imageStatus.setImageResource(R.drawable.green_circle);
+                    else
+                        imageStatus.setImageResource(R.drawable.red_cross);
+                }
+                return true;
+            }
+        };
+        scannerInput.setOnEditorActionListener(exampleListener);
+        //scannerInput.setSelected(true);
+        task = new UpdateTask().execute();
     }
 
     private void InitServer() {
         SocketHandler.closeSocket();
         SocketHandler.initSocket(SERVERIP, SERVERPORT);
-        String init = "CONNECT/tFF<END>";
+        String init = "CONNECT\tFF<END>";
         SocketHandler.writeToSocket(init);
         str1 = SocketHandler.getOutput();
         Log.d("Mylog", str1);
@@ -132,9 +159,14 @@ public class MainActivity extends Activity {
     };
 
     private void updateUI() {
-        message.setText(str1);
+        if(str1.contains("CONNECT_OK"))
+            message.setText("伺服器辨識成功");
+        else
+            message.setText(str1);
         msg.setText("1234567890wwwwwwwwwwwwwwwwwwwwww1234567890...1234567890wwwwwwwwwwwwwwwwwwwwww1234567890..." +
                 "1234567890wwwwwwwwwwwwwwwwwwwwww1234567890...1234567890wwwwwwwwwwwwwwwwwwwwww1234567890...");
+        //msg.setSelected(true);
+        scannerInput.requestFocus();
         tryGetUsbPermission();
     }
 
@@ -185,9 +217,12 @@ public class MainActivity extends Activity {
                 return;
             }
         }
+
         Log.e(TAG, "after for loop. no device found.");
-        connectState.setText("Not connected");
-        connectState.setTextColor(Color.RED);
+        //if(!isUsbFound) {
+            connectState.setText("Not connected");
+            connectState.setTextColor(Color.RED);
+        //}
     }
 
     private void afterGetUsbPermission(UsbDevice usbDevice) {
@@ -364,6 +399,48 @@ public class MainActivity extends Activity {
         }
     }
 
+    private class UpdateTask extends AsyncTask<Void, String, String> {
+        @Override
+        protected String doInBackground(Void... v) {
+            //Log.d("Mylog", "UpdateTask listening0...");
+            while(!isCancelled()){
+                Log.d("Mylog", "UpdateTask listening...");
+                String result;
+                result = SocketHandler.getOutput();
+                publishProgress(result);
+                Log.d("Mylog", "result=" + result);
+                    //return result;
+            }
+            return null;
+        }
+        protected void onProgressUpdate(String... values) {
+            String result = values[0];
+            String[] lines = result.split("<END>");
+            for(String s: lines) {
+                if(s != null && s.contains("MSG")) {
+                    s = s.replaceAll("MSG\t", "");
+                    s = s.replaceAll("<N>", "\n");
+                    s = s.replaceAll("<END>", "");
+                    msg.setText(s);
+                }
+                else if(s != null && s.contains("LIST")) {
+                    s = s.replaceAll("LIST\t", "");
+                    s = s.replaceAll("<N>", "\n");
+                    s = s.replaceAll("<END>", "");
+                    //String line = values[0];
+                    String[] items = s.split("\t");
+                    if(items.length >= 4) {
+                        Pcode.setText(items[0]);
+                        Pname.setText(items[1]);
+                        Icode.setText(items[2]);
+                        itemCode = items[2];
+                        Iname.setText(items[3]);
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
@@ -372,6 +449,9 @@ public class MainActivity extends Activity {
             SocketHandler.closeSocket();
             finish();
         }
+        /*if(keyCode == KeyEvent.KEYCODE_ENTER) {
+            Log.d("Mylog", "Enter is pressed");
+        }*/
         return super.onKeyDown(keyCode, event);
     }
 

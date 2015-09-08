@@ -38,7 +38,6 @@ public class SocketHandler {
             isCreated = true;
             in = socket.getInputStream();
             out = socket.getOutputStream();
-            //socket.setSoTimeout(3000);
         }
         catch (UnknownHostException e)
         {
@@ -123,6 +122,8 @@ public class SocketHandler {
         Log.d("Mylog", "Socket closed");
         if(isCreated) {
             try {
+                socket.shutdownInput();
+                socket.shutdownOutput();
                 socket.close();
                 isCreated = false;
             }

@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
@@ -21,6 +23,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.InputType;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -121,15 +124,22 @@ public class MainActivity extends Activity {
                     exampleView.setText("");
                     Log.d("Mylog", "Scanner enter captured: " + productSerial);
                     serialText.setText(productSerial);
-                    if( productSerial.equals(itemCode) )
+                    if( productSerial.equals(itemCode) ) {
                         imageStatus.setImageResource(R.drawable.green_circle);
-                    else
+                        sendData("0");
+                    }
+                    else {
                         imageStatus.setImageResource(R.drawable.red_cross);
+                        sendData("1");
+                        View view = imageStatus.getRootView();
+                        view.setBackgroundColor(getResources().getColor(R.color.red));
+                    }
                 }
                 return true;
             }
         };
         scannerInput.setOnEditorActionListener(exampleListener);
+        //scannerInput.setInputType(InputType.);
         //scannerInput.setSelected(true);
         task = new UpdateTask().execute();
     }
@@ -247,6 +257,8 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 sendData("0");
+                View view = v.getRootView();
+                view.setBackgroundColor(getResources().getColor(R.color.background));
             }
         });
     }
@@ -409,7 +421,6 @@ public class MainActivity extends Activity {
                 result = SocketHandler.getOutput();
                 publishProgress(result);
                 Log.d("Mylog", "result=" + result);
-                    //return result;
             }
             return null;
         }
@@ -446,7 +457,11 @@ public class MainActivity extends Activity {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
             Log.d("Mylog", "back is pressed");
             unregisterReceiver(mUsbPermissionActionReceiver);
+            Log.d("Mylog", "back is pressed 2");
+            task.cancel(true);
+            Log.d("Mylog", "back is pressed 3");
             SocketHandler.closeSocket();
+            Log.d("Mylog", "back is pressed 4");
             finish();
         }
         /*if(keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -458,6 +473,7 @@ public class MainActivity extends Activity {
     @Override
     public void onStop(){
         //listeningTask.cancel(true);
+        task.cancel(true);
         SocketHandler.closeSocket();
         finish();
         super.onStop();

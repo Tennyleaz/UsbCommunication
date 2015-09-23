@@ -9,8 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
-import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
@@ -23,7 +21,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.InputType;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -56,10 +53,11 @@ public class MainActivity extends Activity {
     private TextViewAdapter messageAdapter;
     private ArrayList<TextView> messageList;
     private AsyncTask<Void, Integer, String> listeningTask;
-    private TextView Pname, Pcode, Iname, Icode, connectState, message, serialText;
+    private TextView Pname, Pcode, Iname, Icode, connectState, message, serialText, severState;
     private ScrollForeverTextView msg;
     private EditText scannerInput;
     private ImageView imageStatus;
+    private boolean connected;
 
     private static ProgressDialog pd;
     private String str1, productSerial, itemCode;
@@ -90,6 +88,8 @@ public class MainActivity extends Activity {
         imageStatus = (ImageView) findViewById(R.id.imageView);
         scannerInput = (EditText) findViewById(R.id.scannerIn);
         serialText = (TextView) findViewById(R.id.tv9);
+        severState = (TextView) findViewById(R.id.tv11);
+        connected = false;
 
         if(!isNetworkConnected()){  //close when not connected
             AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
@@ -111,7 +111,25 @@ public class MainActivity extends Activity {
                 @Override
                 public void run() {
                     InitServer();  // 耗時的方法
-                    handler.sendEmptyMessage(0);  // 執行耗時的方法之後發送消給handler
+                    InitOkHandler.sendEmptyMessage(0);  // 執行耗時的方法之後發送消給handler
+                }
+            }).start();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {  // 需要背景作的事
+                    try {
+                        for (int i = 0; i < 10; i++) {
+                            Thread.sleep(1000);
+                        }
+                        if(connected)
+                            return;
+                        else {
+                            Log.e("Mylog", "1000ms timeout");
+                            ServerDownHandler.sendEmptyMessage(0);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }).start();
         }
@@ -147,7 +165,7 @@ public class MainActivity extends Activity {
     private void InitServer() {
         SocketHandler.closeSocket();
         SocketHandler.initSocket(SERVERIP, SERVERPORT);
-        String init = "CONNECT\tFF<END>";
+        String init = "CONNECT\tFF_1<END>";
         SocketHandler.writeToSocket(init);
         str1 = SocketHandler.getOutput();
         Log.d("Mylog", str1);
@@ -160,7 +178,7 @@ public class MainActivity extends Activity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private  Handler handler = new Handler() {
+    private Handler InitOkHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {// handler接收到消息後就會執行此方法
             updateUI();
@@ -168,9 +186,31 @@ public class MainActivity extends Activity {
         }
     };
 
+    private Handler ServerDownHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {// handler接收到消息後就會執行此方法
+            pd.dismiss();// 關閉ProgressDialog
+            AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+            dialog.setTitle("警告");
+            dialog.setMessage("伺服器無回應,\n程式即將關閉");
+            dialog.setPositiveButton("OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialoginterface, int i) {
+                            android.os.Process.killProcess(android.os.Process.myPid());
+                            System.exit(1);
+                        }
+                    });
+            dialog.show();
+        }
+    };
+
     private void updateUI() {
-        if(str1.contains("CONNECT_OK"))
-            message.setText("伺服器辨識成功");
+        if(str1.contains("CONNECT_OK")) {
+            //message.setText("伺服器辨識成功");
+            severState.setText("伺服器辨識成功");
+            severState.setTextColor(Color.GREEN);
+            connected = true;
+        }
         else
             message.setText(str1);
         msg.setText("1234567890wwwwwwwwwwwwwwwwwwwwww1234567890...1234567890wwwwwwwwwwwwwwwwwwwwww1234567890..." +
@@ -415,7 +455,7 @@ public class MainActivity extends Activity {
         @Override
         protected String doInBackground(Void... v) {
             //Log.d("Mylog", "UpdateTask listening0...");
-            while(!isCancelled()){
+            while(!isCancelled() && connected){
                 Log.d("Mylog", "UpdateTask listening...");
                 String result;
                 result = SocketHandler.getOutput();

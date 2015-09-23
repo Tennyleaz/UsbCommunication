@@ -124,7 +124,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Arduino:"
+        android:text="掃 描 器:"
         android:id="@+id/textView2"
         android:layout_marginStart="150dp"
         android:layout_alignTop="@+id/tv2"
@@ -139,7 +139,7 @@
         android:textColor="#d50000"
         android:layout_alignTop="@+id/textView2"
         android:layout_toEndOf="@+id/textView2"
-        android:layout_marginStart="30dp" />
+        android:layout_marginStart="40dp" />
 
 
 
@@ -153,7 +153,7 @@
         <com.example.tenny.usbcommunication.ScrollForeverTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="@dimen/abc_text_size_display_1_material"
             android:text="Large Text"
             android:ellipsize="marquee"
             android:marqueeRepeatLimit="marquee_forever"
@@ -166,7 +166,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Scanner:"
+        android:text="現正進料:"
         android:id="@+id/tv8"
         android:layout_alignBaseline="@+id/tv10"
         android:layout_alignBottom="@+id/tv10"
@@ -209,5 +209,24 @@
         android:id="@+id/tv10"
         android:layout_alignBottom="@+id/tv7"
         android:layout_alignStart="@+id/tv6" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="連線狀態:"
+        android:id="@+id/textView4"
+        android:layout_alignTop="@+id/tv4"
+        android:layout_alignStart="@+id/textView2" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Not connected"
+        android:id="@+id/tv11"
+        android:layout_alignTop="@+id/textView4"
+        android:layout_alignStart="@+id/connected"
+        android:textColor="#d50000" />
 
 </RelativeLayout>

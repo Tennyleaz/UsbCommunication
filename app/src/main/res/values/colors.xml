@@ -5,5 +5,6 @@
     <color name="orange">#ffff5524</color>
     <color name="green">#4caf50</color>
     <color name="gray">#bdbdbd</color>
-    <color name="background">#fffafafa</color>
+    <color name="background">#fafafa</color>
+    <color name="white">#ffffff</color>
 </resources>

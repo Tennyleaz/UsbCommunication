@@ -6,146 +6,246 @@
     tools:context=".MainActivity"
     android:orientation="vertical">
 
-    <Button
-        android:focusable="false"
-        android:layout_width="@dimen/button_width"
-        android:layout_height="@dimen/button_height"
-        android:text="@string/str_turn_on"
-        android:id="@+id/btn_turn_on"
-        android:layout_marginEnd="43dp"
-        android:textSize="@dimen/abc_text_size_medium_material"
-        android:background="#e57373"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true" />
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/table1"
+        android:stretchColumns="*"
+        android:background="@color/gray">
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/row1"
+            android:layout_margin="10dp"
+            android:paddingEnd="10dp"
+            android:background="@color/blue">
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:background="@color/orange">
+                <TextView
+                    android:text="@string/hello_world"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textView" />
 
-    <Button
-        android:focusable="false"
-        android:layout_width="@dimen/button_width"
-        android:layout_height="@dimen/button_height"
-        android:text="@string/str_turn_off"
-        android:id="@+id/btn_turn_off"
-        android:textSize="@dimen/abc_text_size_medium_material"
-        android:background="#4caf50"
-        android:layout_alignBottom="@+id/tv4"
-        android:layout_alignStart="@+id/btn_turn_on" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="配方名稱:"
+                    android:id="@+id/tv1"
+                    android:layout_below="@+id/textView"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="20dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="配方編號:"
+                    android:id="@+id/tv3"
+                    android:layout_below="@+id/tv1"
+                    android:layout_alignStart="@+id/tv1"
+                    android:layout_marginTop="30dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="物料名稱:"
+                    android:id="@+id/tv5"
+                    android:layout_below="@+id/tv3"
+                    android:layout_alignStart="@+id/tv3"
+                    android:layout_marginTop="30dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="物料編號:"
+                    android:id="@+id/tv7"
+                    android:layout_below="@+id/tv5"
+                    android:layout_alignStart="@+id/tv5"
+                    android:layout_marginTop="30dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Pass or Fail:"
+                    android:id="@+id/textView3"
+                    android:layout_below="@+id/tv7"
+                    android:layout_alignStart="@+id/tv7"
+                    android:layout_marginTop="30dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Pname"
+                    android:id="@+id/tv2"
+                    android:layout_alignTop="@+id/tv1"
+                    android:layout_toEndOf="@+id/tv1"
+                    android:layout_marginStart="40dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Pcode"
+                    android:id="@+id/tv4"
+                    android:layout_alignBottom="@+id/tv3"
+                    android:layout_alignStart="@+id/tv2" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Iname"
+                    android:id="@+id/tv6"
+                    android:layout_alignTop="@+id/tv5"
+                    android:layout_alignStart="@+id/tv4" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Icode"
+                    android:id="@+id/tv10"
+                    android:layout_alignBottom="@+id/tv7"
+                    android:layout_alignStart="@+id/tv6" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/imageView"
+                    android:layout_alignBottom="@+id/textView3"
+                    android:src="@drawable/green_circle"
+                    android:layout_alignTop="@+id/textView3"
+                    android:layout_alignStart="@+id/tv6" />
+
+                <Button
+                    android:focusable="false"
+                    android:layout_width="@dimen/button_width"
+                    android:layout_height="@dimen/button_height"
+                    android:text="@string/str_turn_off"
+                    android:id="@+id/btn_turn_off"
+                    android:textSize="@dimen/abc_text_size_medium_material"
+                    android:background="#4caf50"
+                    android:layout_below="@+id/textView3"
+                    android:layout_alignStart="@+id/textView3"
+                    android:layout_marginTop="30dp"/>.
+
+                <Button
+                    android:focusable="false"
+                    android:layout_width="@dimen/button_width"
+                    android:layout_height="@dimen/button_height"
+                    android:text="@string/str_turn_on"
+                    android:id="@+id/btn_turn_on"
+                    android:textSize="@dimen/abc_text_size_medium_material"
+                    android:background="#e57373"
+                    android:layout_below="@+id/btn_turn_off"
+                    android:layout_alignStart="@+id/textView3"
+                    android:layout_marginTop="20dp"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/orange">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="掃 描 器:"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="36dp"
+                    android:id="@+id/textView2" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Not connected"
+                    android:id="@+id/connected"
+                    android:textColor="#d50000"
+                    android:layout_alignTop="@+id/textView2"
+                    android:layout_toEndOf="@+id/textView2"
+                    android:layout_marginStart="40dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="連線狀態:"
+                    android:id="@+id/textView4"
+                    android:layout_below="@id/textView2"
+                    android:layout_alignStart="@id/textView2"
+                    android:layout_marginTop="30dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Not connected"
+                    android:id="@+id/tv11"
+                    android:layout_alignTop="@+id/textView4"
+                    android:layout_alignStart="@+id/connected"
+                    android:textColor="#d50000" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="現正進料:"
+                    android:id="@+id/tv8"
+                    android:layout_below="@id/textView4"
+                    android:layout_alignStart="@id/textView4"
+                    android:layout_marginTop="30dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="0-00000000"
+                    android:id="@+id/tv9"
+                    android:layout_alignTop="@+id/tv8"
+                    android:layout_alignStart="@+id/tv11"/>
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/scannerIn"
+                    android:focusable="true"
+                    android:windowSoftInputMode="stateHidden"
+                    android:focusableInTouchMode="true"
+                    android:layout_alignStart="@+id/tv11"
+                    android:layout_below="@+id/tv9"
+                    android:layout_alignEnd="@+id/tv11"
+                    android:layout_marginTop="3dp"/>
+            </RelativeLayout>
+        </TableRow>
+    </TableLayout>
+
+
+
+
 
     <ListView
         android:layout_width="@dimen/list_width"
         android:layout_height="@dimen/list_height"
+        android:visibility="gone"
         android:id="@+id/lv_message_box"
-        android:layout_centerVertical="true"
-        android:layout_alignStart="@+id/btn_turn_off" />
-
-    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:layout_alignTop="@+id/btn_turn_on"
-        android:layout_alignStart="@+id/tv1" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="配方名稱:"
-        android:id="@+id/tv1"
-        android:layout_below="@+id/textView"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="20dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Pname"
-        android:id="@+id/tv2"
-        android:layout_alignTop="@+id/tv1"
-        android:layout_toEndOf="@+id/tv1"
-        android:layout_marginStart="40dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="配方編號:"
-        android:id="@+id/tv3"
-        android:layout_below="@+id/tv1"
-        android:layout_alignStart="@+id/tv1"
-        android:layout_marginTop="30dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Pcode"
-        android:id="@+id/tv4"
-        android:layout_alignBottom="@+id/tv3"
-        android:layout_alignStart="@+id/tv2" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="物料名稱:"
-        android:id="@+id/tv5"
-        android:layout_below="@+id/tv3"
-        android:layout_alignStart="@+id/tv3"
-        android:layout_marginTop="30dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Iname"
-        android:id="@+id/tv6"
-        android:layout_alignTop="@+id/tv5"
-        android:layout_alignStart="@+id/tv4" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="物料編號:"
-        android:id="@+id/tv7"
-        android:layout_below="@+id/tv5"
-        android:layout_alignStart="@+id/tv5"
-        android:layout_marginTop="30dp" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView"
-        android:layout_alignBottom="@+id/textView3"
-        android:src="@drawable/green_circle"
-        android:layout_alignTop="@+id/textView3"
-        android:layout_alignStart="@+id/tv6" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="掃 描 器:"
-        android:id="@+id/textView2"
-        android:layout_marginStart="150dp"
-        android:layout_alignTop="@+id/tv2"
-        android:layout_toEndOf="@+id/tv2" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Not connected"
-        android:id="@+id/connected"
-        android:textColor="#d50000"
-        android:layout_alignTop="@+id/textView2"
-        android:layout_toEndOf="@+id/textView2"
-        android:layout_marginStart="40dp" />
-
-
+        android:layout_centerVertical="true" />
 
     <TableLayout
         android:id="@+id/TL"
-        android:background="@color/gray"
+        android:background="@color/background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -161,72 +261,4 @@
             android:focusable="true"
             android:id="@+id/msg"/>
     </TableLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="現正進料:"
-        android:id="@+id/tv8"
-        android:layout_alignBaseline="@+id/tv10"
-        android:layout_alignBottom="@+id/tv10"
-        android:layout_alignStart="@+id/textView2" />
-
-    <EditText
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/scannerIn"
-        android:focusable="true"
-        android:windowSoftInputMode="stateHidden"
-        android:focusableInTouchMode="true"
-        android:layout_alignTop="@+id/tv8"
-        android:layout_toEndOf="@+id/tv9" />
-
-    <TextView
-        android:layout_width="240dp"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="0-00000000"
-        android:id="@+id/tv9"
-        android:layout_alignTop="@+id/scannerIn"
-        android:layout_alignStart="@+id/connected" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Pass or Fail:"
-        android:id="@+id/textView3"
-        android:layout_below="@+id/tv7"
-        android:layout_alignStart="@+id/tv7"
-        android:layout_marginTop="30dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Icode"
-        android:id="@+id/tv10"
-        android:layout_alignBottom="@+id/tv7"
-        android:layout_alignStart="@+id/tv6" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="連線狀態:"
-        android:id="@+id/textView4"
-        android:layout_alignTop="@+id/tv4"
-        android:layout_alignStart="@+id/textView2" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Not connected"
-        android:id="@+id/tv11"
-        android:layout_alignTop="@+id/textView4"
-        android:layout_alignStart="@+id/connected"
-        android:textColor="#d50000" />
-
 </RelativeLayout>

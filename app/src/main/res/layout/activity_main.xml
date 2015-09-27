@@ -2,7 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity"
     android:orientation="vertical">
 
@@ -17,13 +16,12 @@
             android:layout_height="match_parent"
             android:id="@+id/row1"
             android:layout_margin="10dp"
-            android:paddingEnd="10dp"
-            android:background="@color/blue">
+            android:background="@color/gray"
+            android:layout_weight="1">
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:background="@color/orange">
+                android:background="@color/background">
                 <TextView
                     android:text="@string/hello_world"
                     android:layout_width="wrap_content"
@@ -155,9 +153,8 @@
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@color/orange">
+                android:layout_marginStart="10dp"
+                android:background="@color/background">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -230,6 +227,20 @@
                     android:layout_marginTop="3dp"/>
             </RelativeLayout>
         </TableRow>
+        <TableRow
+            android:background="@color/gray">
+            <com.example.tenny.usbcommunication.ScrollForeverTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/abc_text_size_display_1_material"
+                android:text="Large Text"
+                android:textColor="@color/black"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:singleLine="true"
+                android:focusable="true"
+                android:id="@+id/msg"/>
+        </TableRow>
     </TableLayout>
 
 
@@ -242,23 +253,4 @@
         android:visibility="gone"
         android:id="@+id/lv_message_box"
         android:layout_centerVertical="true" />
-
-    <TableLayout
-        android:id="@+id/TL"
-        android:background="@color/background"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true">
-        <com.example.tenny.usbcommunication.ScrollForeverTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/abc_text_size_display_1_material"
-            android:text="Large Text"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:singleLine="true"
-            android:focusable="true"
-            android:id="@+id/msg"/>
-    </TableLayout>
 </RelativeLayout>

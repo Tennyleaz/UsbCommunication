@@ -134,7 +134,7 @@ public class MainActivity extends Activity {
             }).start();
         }
 
-        TextView.OnEditorActionListener exampleListener = new TextView.OnEditorActionListener() {
+        TextView.OnEditorActionListener scannerTextListener = new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
                     //example_confirm();//match this behavior to your 'Send' (or Confirm) button
@@ -156,7 +156,7 @@ public class MainActivity extends Activity {
                 return true;
             }
         };
-        scannerInput.setOnEditorActionListener(exampleListener);
+        scannerInput.setOnEditorActionListener(scannerTextListener);
         //scannerInput.setInputType(InputType.);
         //scannerInput.setSelected(true);
         task = new UpdateTask().execute();

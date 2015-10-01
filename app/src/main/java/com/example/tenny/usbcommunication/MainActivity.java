@@ -159,6 +159,7 @@ public class MainActivity extends Activity {
         scannerInput.setOnEditorActionListener(scannerTextListener);
         //scannerInput.setInputType(InputType.);
         //scannerInput.setSelected(true);
+        Log.d("Mylog", "Before new task");
         task = new UpdateTask().execute();
     }
 
@@ -211,11 +212,13 @@ public class MainActivity extends Activity {
             severState.setTextColor(Color.GREEN);
             connected = true;
         }
-        else
+        else {
             message.setText(str1);
+        }
         msg.setText("1234567890wwwwwwwwwwwwwwwwwwwwww1234567890...1234567890wwwwwwwwwwwwwwwwwwwwww1234567890..." +
                 "1234567890wwwwwwwwwwwwwwwwwwwwww1234567890...1234567890wwwwwwwwwwwwwwwwwwwwww1234567890...");
-        //msg.setSelected(true);
+        msg.setSelected(true);
+        msg.requestFocus();
         scannerInput.requestFocus();
         tryGetUsbPermission();
     }
@@ -454,8 +457,9 @@ public class MainActivity extends Activity {
     private class UpdateTask extends AsyncTask<Void, String, String> {
         @Override
         protected String doInBackground(Void... v) {
-            //Log.d("Mylog", "UpdateTask listening0...");
-            while(!isCancelled() && connected){
+            Log.d("Mylog", "UpdateTask start.");
+            while(!isCancelled()) {
+                if(!connected) continue;
                 Log.d("Mylog", "UpdateTask listening...");
                 String result;
                 result = SocketHandler.getOutput();

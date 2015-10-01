@@ -250,8 +250,9 @@
         <TableRow
             android:background="@color/gray">
             <com.example.tenny.usbcommunication.ScrollForeverTextView
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:lines="1"
                 android:textSize="@dimen/abc_text_size_display_1_material"
                 android:text="this is marquee~"
                 android:textColor="@color/black"
@@ -259,7 +260,8 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:singleLine="true"
                 android:focusable="true"
-                android:id="@+id/msg"/>
+                android:id="@+id/msg"
+                android:layout_span="3" />
         </TableRow>
     </TableLayout>
 

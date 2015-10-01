@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -34,17 +35,15 @@ public class SocketHandler {
             ip = SERVERIP;
             port = SERVERPORT;
             socket = new Socket();
-            socket.connect(new InetSocketAddress(ip, port));
+            socket.connect(new InetSocketAddress(ip, port), 2000);
             isCreated = true;
             in = socket.getInputStream();
             out = socket.getOutputStream();
-        }
-        catch (UnknownHostException e)
-        {
+        } catch (SocketTimeoutException e)  {
+            System.out.println("Error timeout: "+e.getMessage());
+        } catch (UnknownHostException e) {
             System.out.println("Error0: "+e.getMessage());
-        }
-        catch(IOException e)
-        {
+        } catch(IOException e) {
             System.out.println("Error1: " + e.getMessage());
         }
         return socket;
@@ -62,18 +61,20 @@ public class SocketHandler {
             //byte[] buffer = new byte[32768];
             byte[] readbyte = new byte[1024];
             try {
-                while((i=in.read(readbyte)) != -1) {
-                    for(int j=0; j<i; j++) {
+                while ((i = in.read(readbyte)) != -1) {
+                    for (int j = 0; j < i; j++) {
                         buffer.add(readbyte[j]);
                     }
                     //to test if <END> received
-                    String s= new String(readbyte, 0, i);
+                    String s = new String(readbyte, 0, i);
                     readbyte = null;
                     readbyte = new byte[1024];
-                    Log.d("Mylog", "i=" + i + ", s="+s);
-                    if(s.contains("<END>"))
+                    Log.d("Mylog", "i=" + i + ", s=" + s);
+                    if (s.contains("<END>"))
                         break;
                 }
+            } catch (SocketTimeoutException e)  {
+                System.out.println("Error timeout: "+e.getMessage());
             } catch (IOException e) {
                 System.out.println("Error getOutput: " + e.getMessage());
             }

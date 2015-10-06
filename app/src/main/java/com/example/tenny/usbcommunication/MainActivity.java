@@ -53,12 +53,12 @@ public class MainActivity extends Activity {
     private TextViewAdapter messageAdapter;
     private ArrayList<TextView> messageList;
     private AsyncTask<Void, Integer, String> listeningTask;
-    private TextView Pname, Pcode, Iname, Icode, connectState, message, serialText, severState;
+    private TextView Pname, Pcode, Iname, Icode, connectState, message, serialText, severState, countTV;
     private ScrollForeverTextView msg;
     private EditText scannerInput;
     private ImageView imageStatus;
     private boolean connected;
-
+    private int count;
     private static ProgressDialog pd;
     private String str1, productSerial, itemCode;
     private AsyncTask task = null;
@@ -90,6 +90,8 @@ public class MainActivity extends Activity {
         serialText = (TextView) findViewById(R.id.tv9);
         severState = (TextView) findViewById(R.id.tv11);
         connected = false;
+        countTV = (TextView) findViewById(R.id.count);
+        count = 0;
 
         if(!isNetworkConnected()){  //close when not connected
             AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
@@ -145,6 +147,10 @@ public class MainActivity extends Activity {
                     if( productSerial.equals(itemCode) ) {
                         imageStatus.setImageResource(R.drawable.green_circle);
                         sendData("0");
+                        count++;
+                        String s = "UPDATE\tLIST\t" + productSerial + "\t1";
+                        SocketHandler.writeToSocket(s);
+                        countTV.setText(count);
                     }
                     else {
                         imageStatus.setImageResource(R.drawable.red_cross);
@@ -477,6 +483,15 @@ public class MainActivity extends Activity {
                     s = s.replaceAll("<N>", "\n");
                     s = s.replaceAll("<END>", "");
                     msg.setText(s);
+                }
+                else if(s!=null && s.contains("UPDATE_LIST")) {
+                    s = s.replaceAll("UPDATE_LIST\t", "");
+                    String[] items = s.split("\t");
+                    if(items.length >= 2) {
+                        if(items[0].equals(productSerial))
+                            if(Integer.parseInt(items[1]) != count)
+                                Log.e("Mylog", "product " + productSerial +" count:"+ items[1] + " != " + count);
+                    }
                 }
                 else if(s != null && s.contains("LIST")) {
                     s = s.replaceAll("LIST\t", "");

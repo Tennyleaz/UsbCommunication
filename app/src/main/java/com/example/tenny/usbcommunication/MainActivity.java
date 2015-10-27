@@ -21,6 +21,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -32,16 +33,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
     static final String TAG = "0305-" + MainActivity.class.getSimpleName();
     static final String SERVERIP = "140.113.167.14";
     static final int SERVERPORT = 9000; //8000= echo server, 9000=real server
+    static final int SEEK_DEST = 95;
 
     final int SYS_MSG = 0x11;
     final int SENSOR_MSG = 0x12;
@@ -53,14 +62,14 @@ public class MainActivity extends Activity {
     private TextViewAdapter messageAdapter;
     private ArrayList<TextView> messageList;
     private AsyncTask<Void, Integer, String> listeningTask;
-    private TextView Pname, Pcode, Iname, Icode, connectState, message, serialText, severState, countTV;
+    private TextView Pname, Pcode, Iname, Icode, connectState, message, serialText, severState, countTV, swapTitle, swapMsg;;
     private ScrollForeverTextView msg;
     private EditText scannerInput;
     private ImageView imageStatus;
-    private boolean connected;
+    private boolean connected, need_to_send, swapWorking, swapEnd;
     private int count;
     private static ProgressDialog pd;
-    private String str1, productSerial, itemCode;
+    private String str1, productSerial, itemCode, snedString;
     private AsyncTask task = null;
     private UsbManager manager;
     private UsbDevice device;
@@ -68,6 +77,8 @@ public class MainActivity extends Activity {
     private UsbEndpoint endpointOut;
     private UsbEndpoint endpointIn;
     private UsbDeviceConnection connection;
+    private int connectionTimeoutCount;
+    private SeekBar mySeekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,8 +101,17 @@ public class MainActivity extends Activity {
         serialText = (TextView) findViewById(R.id.tv9);
         severState = (TextView) findViewById(R.id.tv11);
         connected = false;
+        need_to_send = false;
         countTV = (TextView) findViewById(R.id.count);
         count = 0;
+        //connectionTimeoutCount = 0;
+        swapMsg = (TextView) findViewById(R.id.swap_msg);
+        swapMsg.setVisibility(View.INVISIBLE);
+        swapTitle = (TextView) findViewById(R.id.swapTitle);
+        mySeekBar = (SeekBar) findViewById(R.id.myseek);
+        mySeekBar.setEnabled(false);
+        swapWorking = false;
+        swapEnd = false;
 
         if(!isNetworkConnected()){  //close when not connected
             AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
@@ -123,9 +143,7 @@ public class MainActivity extends Activity {
                         for (int i = 0; i < 10; i++) {
                             Thread.sleep(1000);
                         }
-                        if(connected)
-                            return;
-                        else {
+                        if(!connected) {
                             Log.e("Mylog", "1000ms timeout");
                             ServerDownHandler.sendEmptyMessage(0);
                         }
@@ -145,14 +163,20 @@ public class MainActivity extends Activity {
                     Log.d("Mylog", "Scanner enter captured: " + productSerial);
                     serialText.setText(productSerial);
                     if( productSerial.equals(itemCode) ) {
+                        Log.d("Mylog", "1 itemCode=" + itemCode);
                         imageStatus.setImageResource(R.drawable.green_circle);
                         sendData("0");
                         count++;
-                        String s = "UPDATE\tLIST\t" + productSerial + "\t1";
-                        SocketHandler.writeToSocket(s);
-                        countTV.setText(count);
+                        snedString = "UPDATE\tLIST\t" + productSerial + "\t10<END>";
+                        need_to_send = true;
+                        //Log.d("Mylog", "3");
+                        //SocketHandler.writeToSocket(s);
+                        //Log.d("Mylog", "4");
+                        //countTV.setText(Integer.toString(count));
+                        //Log.d("Mylog", "5");
                     }
                     else {
+                        Log.d("Mylog", "2 itemCode=" + itemCode);
                         imageStatus.setImageResource(R.drawable.red_cross);
                         sendData("1");
                         View view = imageStatus.getRootView();
@@ -175,7 +199,12 @@ public class MainActivity extends Activity {
         String init = "CONNECT\tFF_1<END>";
         SocketHandler.writeToSocket(init);
         str1 = SocketHandler.getOutput();
-        Log.d("Mylog", str1);
+        //Log.d("Mylog", str1);
+        if(str1!=null && str1.contains("CONNECT_EXIST")) {
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
+        }
     }
 
     private boolean isNetworkConnected(){
@@ -212,7 +241,7 @@ public class MainActivity extends Activity {
     };
 
     private void updateUI() {
-        if(str1.contains("CONNECT_OK")) {
+        if(str1!=null && str1.contains("CONNECT_OK")) {
             //message.setText("伺服器辨識成功");
             severState.setText("伺服器辨識成功");
             severState.setTextColor(Color.GREEN);
@@ -221,10 +250,47 @@ public class MainActivity extends Activity {
         else {
             message.setText(str1);
         }
-        msg.setText("1234567890wwwwwwwwwwwwwwwwwwwwww1234567890...1234567890wwwwwwwwwwwwwwwwwwwwww1234567890..." +
-                "1234567890wwwwwwwwwwwwwwwwwwwwww1234567890...1234567890wwwwwwwwwwwwwwwwwwwwww1234567890...");
+        msg.setText("無廣播資料");
         msg.setSelected(true);
         msg.requestFocus();
+        mySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {  //結束拖動時觸發
+                if (seekBar.getProgress() > SEEK_DEST) {
+                    //TODO: apply change brand
+                    swapTitle.setText("目前無換牌指令");
+                    swapTitle.setTextColor(getResources().getColor(R.color.dark_gray));
+                    swapMsg.setText("");
+                    swapMsg.setVisibility(View.INVISIBLE);
+                    seekBar.setProgress(5);
+                    seekBar.setEnabled(false);
+                    swapEnd = true;
+                    swapWorking = false;
+                    //if (task != null)
+                    //task.cancel(true);
+                    //task = new UpdateTask().execute();
+                    if(task!= null)
+                        Log.d("Mylog", "task not null");
+                    Log.d("Mylog", "swap end.");
+                    //swapWorking = false;
+                } else {
+                    seekBar.setThumb(ResourcesCompat.getDrawable(getResources(), R.drawable.slider, null));
+                    seekBar.setProgress(5);  //go back to zero
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {  /* 開始拖動時觸發*/ }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {  //進度改變時觸發  只要在拖動，就會重複觸發
+                if (progress > SEEK_DEST)
+                    seekBar.setThumb(ResourcesCompat.getDrawable(getResources(), R.drawable.slider_ok, null));
+                else
+                    seekBar.setThumb(ResourcesCompat.getDrawable(getResources(), R.drawable.slider, null));
+            }
+        });
+
         scannerInput.requestFocus();
         tryGetUsbPermission();
     }
@@ -328,7 +394,7 @@ public class MainActivity extends Activity {
         for (UsbDevice d : manager.getDeviceList().values()) {
             String s = "Found device: " + d.getDeviceName();
             Log.d(TAG, s);
-            updateMessage(s, SYS_MSG);
+            //updateMessage(s, SYS_MSG);
             if(d.getVendorId() == 9025) {
                 device = d;
                 Log.d(TAG, "Arduino Uno found!");
@@ -364,7 +430,7 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 connection.bulkTransfer(endpointOut, bytes, bytes.length, TIMEOUT);
-                Time time = new Time("Asia/Tokyo");
+                /*Time time = new Time("Asia/Tokyo");
                 time.setToNow();
                 String msg = time.year + "/" + (time.month + 1) + "/" + time.monthDay + " " + time.hour + ":" + time.minute + ":" + time.second;
                 if (data.equals("1")) {
@@ -372,7 +438,7 @@ public class MainActivity extends Activity {
                 } else {
                     msg = "Turn off light at " + msg;
                 }
-                updateMessage(msg, SYS_MSG);
+                updateMessage(msg, SYS_MSG);*/
             }
         });
     }
@@ -404,7 +470,7 @@ public class MainActivity extends Activity {
                 if (null != msg) {
                     String s = "Got light sensor value = " + msg;
                     Log.d(TAG, s);
-                    updateMessage(s, SENSOR_MSG);
+                    //updateMessage(s, SENSOR_MSG);
                     //SystemClock.sleep(1000);
                     readData();
                 }
@@ -418,7 +484,7 @@ public class MainActivity extends Activity {
         listeningTask.execute();
     }
 
-    private void updateMessage(String msg, int type) {
+    /*private void updateMessage(String msg, int type) {
         TextView v = new TextView(this);
         v.setLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.WRAP_CONTENT, ListView.LayoutParams.WRAP_CONTENT));
         switch (type) {
@@ -432,7 +498,7 @@ public class MainActivity extends Activity {
         v.setText(msg);
         messageList.add(v);
         messageAdapter.notifyDataSetChanged();
-    }
+    }*/
 
     public class TextViewAdapter extends BaseAdapter {
 
@@ -466,19 +532,64 @@ public class MainActivity extends Activity {
             Log.d("Mylog", "UpdateTask start.");
             while(!isCancelled()) {
                 if(!connected) continue;
+                //if(connectionTimeoutCount >= 11) break;
+                if(need_to_send && snedString!=null) {
+                    Log.d("Mylog", "sned:"+snedString);
+                    SocketHandler.writeToSocket(snedString);
+                    need_to_send = false;
+                }
+                if(swapEnd) {
+                    Log.d("Mylog", "prepare to send SWAP OK");
+                    SocketHandler.writeToSocket("SWAP_OK<END>");
+                    swapWorking = false;
+                    swapEnd = false;
+                    Log.d("Mylog", "swapWorking -> false");
+                    continue;
+                }
+                if(swapWorking) {
+                    //Log.e("Mylog", "break!");
+                    continue;
+                    //return null;
+                    //break;
+                }
                 Log.d("Mylog", "UpdateTask listening...");
                 String result;
                 result = SocketHandler.getOutput();
                 publishProgress(result);
                 Log.d("Mylog", "result=" + result);
+
+                /*if (result == null || result.isEmpty() || result.equals(""))
+                    connectionTimeoutCount++;
+                else
+                    connectionTimeoutCount = 0;*/
             }
             return null;
         }
         protected void onProgressUpdate(String... values) {
+            /*if(connectionTimeoutCount >= 10) {
+                Log.e("Mylog", "connect failed!");
+                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                dialog.setTitle("警告");
+                dialog.setMessage("伺服器無回應，程式即將關閉\n請嘗試重新連線或洽系統管理員");
+                dialog.setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialoginterface, int i) {
+                                android.os.Process.killProcess(android.os.Process.myPid());
+                                System.exit(1);
+                            }
+                        });
+                dialog.show();
+                return;
+            }*/
             String result = values[0];
             String[] lines = result.split("<END>");
             for(String s: lines) {
-                if(s != null && s.contains("MSG")) {
+                Log.d("Mylog", "s="+s);
+                if(s!=null && s.contains("SWAP_MSG\t")) {
+                    s = s.replaceAll("SWAP_MSG\t", "");
+                    swapMsg.setVisibility(View.VISIBLE);
+                    swapMsg.setText(s);
+                } else if(s != null && s.contains("MSG\t")) {
                     s = s.replaceAll("MSG\t", "");
                     s = s.replaceAll("<N>", "\n");
                     s = s.replaceAll("<END>", "");
@@ -488,12 +599,16 @@ public class MainActivity extends Activity {
                     s = s.replaceAll("UPDATE_LIST\t", "");
                     String[] items = s.split("\t");
                     if(items.length >= 2) {
-                        if(items[0].equals(productSerial))
-                            if(Integer.parseInt(items[1]) != count)
-                                Log.e("Mylog", "product " + productSerial +" count:"+ items[1] + " != " + count);
+                        if(items[0].equals(itemCode)) {
+                            if ((int) Double.parseDouble(items[1]) != count) {
+                                Log.e("Mylog", "product " + productSerial + " count:" + items[1] + " != " + count);
+                                countTV.setText(items[1]);
+                            }
+                            countTV.setText(items[1]);
+                        }
                     }
                 }
-                else if(s != null && s.contains("LIST")) {
+                else if(s != null && s.contains("LIST\t")) {
                     s = s.replaceAll("LIST\t", "");
                     s = s.replaceAll("<N>", "\n");
                     s = s.replaceAll("<END>", "");
@@ -505,7 +620,36 @@ public class MainActivity extends Activity {
                         Icode.setText(items[2]);
                         itemCode = items[2];
                         Iname.setText(items[3]);
+                        countTV.setText("0");
                     }
+                } else if(s!=null && s.contains("LIST_EMPTY")) {
+                    Log.d("Mylog", "clear!");
+                    Pcode.setText("");
+                    Pname.setText("");
+                    Icode.setText("");
+                    itemCode = "";
+                    Iname.setText("");
+                    countTV.setText("0");
+                } else if(s!=null && s.contains("SWAP")) {
+                    //s = s.replaceAll("SWAP\t", "");
+                    swapWorking = true;
+                    Log.d("Mylog", "swap!!");
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                    dialog.setTitle("警告");
+                    dialog.setMessage("已下達換牌指令！");
+                    dialog.setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialoginterface, int i) {
+                                    mySeekBar.setEnabled(true);
+                                    swapTitle.setText("向右滑動切換品牌");
+                                    swapTitle.setTextColor(getResources().getColor(R.color.black));
+                                    swapWorking = true;
+                                    Log.d("Mylog", "OK pressed");
+                                    //task.cancel(true);
+                                }
+                            });
+                    Log.d("Mylog", "prepare to show dialog...");
+                    dialog.show();
                 }
             }
         }

@@ -24,7 +24,8 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:background="@color/background"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:id="@+id/layout1">
                 <TextView
                     android:text="@string/hello_world"
                     android:layout_width="wrap_content"
@@ -86,7 +87,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Pname"
+                    android:text="----"
                     android:id="@+id/tv2"
                     android:layout_alignTop="@+id/tv1"
                     android:layout_toEndOf="@+id/tv1"
@@ -96,7 +97,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Pcode"
+                    android:text="----"
                     android:id="@+id/tv4"
                     android:layout_alignBottom="@+id/tv3"
                     android:layout_alignStart="@+id/tv2" />
@@ -105,7 +106,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Iname"
+                    android:text="----"
                     android:id="@+id/tv6"
                     android:layout_alignTop="@+id/tv5"
                     android:layout_alignStart="@+id/tv4" />
@@ -114,7 +115,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Icode"
+                    android:text="----"
                     android:id="@+id/tv10"
                     android:layout_alignBottom="@+id/tv7"
                     android:layout_alignStart="@+id/tv6" />
@@ -124,7 +125,6 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/imageView"
                     android:layout_alignBottom="@+id/textView3"
-                    android:src="@drawable/green_circle"
                     android:layout_alignTop="@+id/textView3"
                     android:layout_alignStart="@+id/tv6" />
 
@@ -158,12 +158,13 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="10dp"
                 android:background="@color/background"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:id="@+id/layout2">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="掃 描 器:"
+                    android:text="阻斷器:"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="36dp"
                     android:id="@+id/textView2" />
@@ -248,6 +249,50 @@
                     android:id="@+id/count"
                     android:layout_alignTop="@+id/countText"
                     android:layout_alignStart="@+id/scannerIn" />
+
+                <TextClock
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textClock"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:textSize="36sp"
+                    android:format24Hour="'現在時間 'MMM dd, aah:mm:ss"
+                    android:layout_marginBottom="36dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="目前無換牌指令"
+                    android:id="@+id/swapTitle"
+                    android:textColor="@color/dark_gray"
+                    android:layout_below="@id/countText"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginStart="30dp" />
+                <SeekBar
+                    android:id="@+id/myseek"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:max="100"
+                    android:progress="3"
+                    android:progressDrawable="@color/gray"
+                    android:thumb="@drawable/slider"
+                    android:layout_below="@+id/swapTitle"
+                    android:layout_alignStart="@+id/swapTitle"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="60dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Pre-swap mwssage goes here"
+                    android:id="@+id/swap_msg"
+                    android:layout_below="@+id/myseek"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="71dp" />
             </RelativeLayout>
             <RelativeLayout
                 android:layout_width="0dp"
@@ -255,7 +300,8 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="3dp"
                 android:background="@color/background"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:id="@+id/layout3">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

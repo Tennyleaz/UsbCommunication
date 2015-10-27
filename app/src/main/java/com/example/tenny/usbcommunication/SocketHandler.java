@@ -23,12 +23,12 @@ public class SocketHandler {
     private static String ip;
     private static int port;
 
-    public static synchronized Socket getSocket(){
+    /*public static synchronized Socket getSocket(){
         if(isCreated)
             return socket;
         else
             return null;
-    }
+    }*/
 
     public static synchronized Socket initSocket(String SERVERIP, int SERVERPORT){
         try {
@@ -37,6 +37,7 @@ public class SocketHandler {
             socket = new Socket();
             socket.connect(new InetSocketAddress(ip, port), 2000);
             isCreated = true;
+            socket.setSoTimeout(2000);
             in = socket.getInputStream();
             out = socket.getOutputStream();
         } catch (SocketTimeoutException e)  {
@@ -49,15 +50,15 @@ public class SocketHandler {
         return socket;
     }
 
-    public static synchronized void setSocket(Socket socket){
+    /*public static synchronized void setSocket(Socket socket){
         SocketHandler.socket = socket;
-    }
+    }*/
 
     public static synchronized String getOutput(){
         if(isCreated) {
             String result = "";
             int i;
-            List<Byte> buffer = new ArrayList<Byte>();;
+            List<Byte> buffer = new ArrayList<Byte>();
             //byte[] buffer = new byte[32768];
             byte[] readbyte = new byte[1024];
             try {
@@ -67,14 +68,14 @@ public class SocketHandler {
                     }
                     //to test if <END> received
                     String s = new String(readbyte, 0, i);
-                    readbyte = null;
+                    //readbyte = null;
                     readbyte = new byte[1024];
                     Log.d("Mylog", "i=" + i + ", s=" + s);
                     if (s.contains("<END>"))
                         break;
                 }
             } catch (SocketTimeoutException e)  {
-                System.out.println("Error timeout: "+e.getMessage());
+                //System.out.println("Error timeout: "+e.getMessage());
             } catch (IOException e) {
                 System.out.println("Error getOutput: " + e.getMessage());
             }
@@ -90,7 +91,9 @@ public class SocketHandler {
     public static synchronized void writeToSocket(String s){
         if(isCreated) {
             try {
+                Log.d("Mylog", "in writeToSocket send:" + s);
                 out.write(s.getBytes());
+                Log.d("Mylog", "write to socket finished");
             } catch (IOException e) {
                 System.out.println("Error writeToSocket: " + e.getMessage());
             }

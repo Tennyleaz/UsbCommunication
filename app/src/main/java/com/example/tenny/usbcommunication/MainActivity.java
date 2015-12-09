@@ -57,8 +57,8 @@ public class MainActivity extends Activity {
     static final int MAX_LINE = 9;
     static final String BOARD_ID = "FF_1";
 
-    final int SYS_MSG = 0x11;
-    final int SENSOR_MSG = 0x12;
+    //final int SYS_MSG = 0x11;
+    //final int SENSOR_MSG = 0x12;
     final int TIMEOUT = 300;
 
     private Button btnTurnOn;
@@ -75,7 +75,7 @@ public class MainActivity extends Activity {
     private ScrollForeverTextView msg;
     private EditText scannerInput;
     private ImageView imageStatus;
-    private boolean connected, need_to_send, swapWorking, swapEnd, bc_msg_reply, bc_msgWorking, notOnstop=false;
+    private boolean connected, need_to_send, swapWorking, swapEnd, bc_msg_reply, bc_msgWorking, notOnstop=false, hasProduct;
     private int count;
     private static ProgressDialog pd;
     private String str1, productSerial, itemCode, snedString, returnWorkerID;
@@ -231,12 +231,21 @@ public class MainActivity extends Activity {
                     }
                 }
             }).start();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+
+                    if(!scannerInput.hasFocus())
+                        scannerInput.requestFocus();
+                }
+            }).start();
         }
 
         TextView.OnEditorActionListener scannerTextListener = new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
                     //example_confirm();//match this behavior to your 'Send' (or Confirm) button
+                    if(!hasProduct) return true;
                     productSerial = exampleView.getText().toString();
                     exampleView.setText("");
                     Log.d("Mylog", "Scanner enter captured: " + productSerial);
@@ -775,6 +784,7 @@ public class MainActivity extends Activity {
                     //String line = values[0];
                     String[] items = s.split("\t");
                     if(items.length >= 4) {
+                        hasProduct = true;
                         Pcode.setText(items[0]);
                         Pname.setText(items[1]);
                         Icode.setText(items[2]);
@@ -784,6 +794,7 @@ public class MainActivity extends Activity {
                     }
                 } else if(s!=null && s.contains("LIST_EMPTY")) {
                     Log.d("Mylog", "clear!");
+                    hasProduct = false;
                     Pcode.setText("");
                     Pname.setText("");
                     Icode.setText("");

@@ -229,7 +229,8 @@
                     android:layout_alignStart="@+id/tv11"
                     android:layout_below="@+id/tv9"
                     android:layout_alignEnd="@+id/tv11"
-                    android:layout_marginTop="3dp"/>
+                    android:layout_marginTop="3dp"
+                    android:inputType="number" />
 
                 <TextView
                     android:layout_width="wrap_content"

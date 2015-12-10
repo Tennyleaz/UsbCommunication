@@ -25,6 +25,7 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -51,7 +52,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity {
     static final String TAG = "0305-" + MainActivity.class.getSimpleName();
-    static final String SERVERIP = "192.168.1.250";//"140.113.167.14";
+    static final String SERVERIP = "140.113.167.14";
     static final int SERVERPORT = 9000; //8000= echo server, 9000=real server
     static final int SEEK_DEST = 95;
     static final int MAX_LINE = 9;
@@ -149,6 +150,7 @@ public class MainActivity extends Activity {
 
         tabHost = (TabHost)findViewById(R.id.tabHost);
         tabHost.setup();
+        tabHost.clearFocus();
         TabHost.TabSpec spec=tabHost.newTabSpec("tab1");
         spec.setContent(R.id.tab1layout);
         spec.setIndicator("品 管");
@@ -231,14 +233,13 @@ public class MainActivity extends Activity {
                     }
                 }
             }).start();
-            new Thread(new Runnable() {
+            runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-
-                    if(!scannerInput.hasFocus())
+                    while (scannerInput != null && !scannerInput.hasFocus())
                         scannerInput.requestFocus();
                 }
-            }).start();
+            });
         }
 
         TextView.OnEditorActionListener scannerTextListener = new TextView.OnEditorActionListener() {
@@ -272,9 +273,20 @@ public class MainActivity extends Activity {
         scannerInput.setOnEditorActionListener(scannerTextListener);
         //scannerInput.setInputType(InputType.);
         //scannerInput.setSelected(true);
+        scannerInput.setFocusableInTouchMode(true);
+        scannerInput.requestFocus();
+        scannerInput.setOnTouchListener(foucsHandler);
         Log.d("Mylog", "Before new task");
         task = new UpdateTask().execute();
     }
+
+    View.OnTouchListener foucsHandler = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View arg0, MotionEvent event) {
+            arg0.requestFocusFromTouch();
+            return false;
+        }
+    };
 
     private void InitServer() {
         SocketHandler.closeSocket();

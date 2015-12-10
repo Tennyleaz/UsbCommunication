@@ -70,4 +70,9 @@ public class ValueAdapter extends ArrayAdapter<ValueItem> {
             v.setTextColor(Color.parseColor("#4caf50")); //green
         }
     }
+
+    @Override
+    public boolean isEnabled(int position) {
+        return false;
+    }
 }

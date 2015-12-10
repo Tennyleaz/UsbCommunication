@@ -40,4 +40,9 @@ public class BoxAdapter extends ArrayAdapter<BoxItem> {
         viewHolder.targetBox.setText(i.targetBox);
         return convertView;
     }
+
+    @Override
+    public boolean isEnabled(int position) {
+        return false;
+    }
 }

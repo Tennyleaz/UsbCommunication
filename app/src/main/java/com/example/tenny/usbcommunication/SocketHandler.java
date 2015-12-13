@@ -37,7 +37,7 @@ public class SocketHandler {
             socket = new Socket();
             socket.connect(new InetSocketAddress(ip, port), 2000);
             isCreated = true;
-            socket.setSoTimeout(2000);
+            socket.setSoTimeout(2500);
             in = socket.getInputStream();
             out = socket.getOutputStream();
         } catch (SocketTimeoutException e)  {

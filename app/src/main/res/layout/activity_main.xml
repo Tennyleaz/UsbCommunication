@@ -214,7 +214,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="0-00000000"
+                    android:text="0-000000000000"
                     android:id="@+id/tv9"
                     android:layout_alignTop="@+id/tv8"
                     android:layout_alignStart="@+id/tv11"/>
@@ -230,7 +230,7 @@
                     android:layout_below="@+id/tv9"
                     android:layout_alignEnd="@+id/tv11"
                     android:layout_marginTop="3dp"
-                    android:inputType="number" />
+                    android:inputType="textNoSuggestions" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -454,7 +454,7 @@
                 android:background="@color/background"
                 android:layout_weight="1">
 
-                <TabHost
+                <com.example.tenny.usbcommunication.MyTabHost
                     android:layout_width="match_parent"
                     android:layout_height="fill_parent"
                     android:id="@+id/tabHost"
@@ -583,7 +583,7 @@
                             </LinearLayout>
                         </FrameLayout>
                     </LinearLayout>
-                </TabHost>
+                </com.example.tenny.usbcommunication.MyTabHost>
             </LinearLayout>
         </TableRow>
         <TableRow

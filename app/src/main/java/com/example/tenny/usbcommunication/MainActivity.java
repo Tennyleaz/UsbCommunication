@@ -29,6 +29,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,27 +38,23 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
     static final String TAG = "0305-" + MainActivity.class.getSimpleName();
-    static final String SERVERIP = "140.113.167.14";
+    static final String SERVERIP = "192.168.1.250";//"140.113.167.14";
     static final int SERVERPORT = 9000; //8000= echo server, 9000=real server
     static final int SEEK_DEST = 95;
     static final int MAX_LINE = 9;
     static final String BOARD_ID = "FF_1";
+    static final boolean debug = false;
 
     //final int SYS_MSG = 0x11;
     //final int SENSOR_MSG = 0x12;
@@ -71,6 +69,8 @@ public class MainActivity extends Activity {
     private ArrayList<ValueItem> valueArray;
     private BoxAdapter boxAdapter;
     private ArrayList<BoxItem> boxArray;
+    private ArrayList<String> nextBrandArray;
+    private ArrayAdapter<String> nextBrandAdapter;
     private AsyncTask<Void, Integer, String> listeningTask;
     private TextView Pname, Pcode, Iname, Icode, connectState, message, serialText, severState, countTV, swapTitle, swapMsg, workerID;
     private ScrollForeverTextView msg;
@@ -90,9 +90,12 @@ public class MainActivity extends Activity {
     private int connectionTimeoutCount;
     private SeekBar mySeekBar;
     private Button n1, n2, n3, n4, n5, n6, n7,n8, n9, n0, btn_enter, btn_delete;
-    private TabHost tabHost;
-    AlertDialog dialog;
+    private MyTabHost tabHost;
+    private AlertDialog dialog;
     static boolean active = false;
+    private Spinner brandSelector;
+    private int returnBrandName=0;
+    private RelativeLayout layout1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +129,7 @@ public class MainActivity extends Activity {
         swapTitle = (TextView) findViewById(R.id.swapTitle);
         mySeekBar = (SeekBar) findViewById(R.id.myseek);
         mySeekBar.setEnabled(false);
+        mySeekBar.setVisibility(View.GONE);
         swapWorking = false;
         swapEnd = false;
         bc_msg_reply = false;
@@ -148,7 +152,7 @@ public class MainActivity extends Activity {
         boxAdapter.notifyDataSetChanged();
         valueAdapter.notifyDataSetChanged();
 
-        tabHost = (TabHost)findViewById(R.id.tabHost);
+        tabHost = (MyTabHost)findViewById(R.id.tabHost);
         tabHost.setup();
         tabHost.clearFocus();
         TabHost.TabSpec spec=tabHost.newTabSpec("tab1");
@@ -167,6 +171,21 @@ public class MainActivity extends Activity {
         tabView = tabWidget.getChildTabViewAt(1);
         tab = (TextView)tabView.findViewById(android.R.id.title);
         tab.setTextSize(24);
+
+        brandSelector = (Spinner) findViewById(R.id.brandSelecter);
+        nextBrandArray = new ArrayList<String>();
+        nextBrandArray.add("(無)");
+        nextBrandAdapter = new ArrayAdapter<String>(MainActivity.this,  android.R.layout.simple_spinner_dropdown_item, nextBrandArray);
+        brandSelector.setAdapter(nextBrandAdapter);
+        brandSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                returnBrandName = pos;
+            }
+
+            public void onNothingSelected(AdapterView<?> parent) {
+                returnBrandName = 0;
+            }
+        });
 
         n0 = (Button) findViewById(R.id.int0);
         n1 = (Button) findViewById(R.id.int1);
@@ -193,6 +212,7 @@ public class MainActivity extends Activity {
         btn_enter.setEnabled(false);
         btn_delete = (Button) findViewById(R.id.btn_del);
         btn_delete.setOnClickListener(deleteListener);
+        layout1 = (RelativeLayout) findViewById(R.id.layout1);
 
         if(!isNetworkConnected()){  //close when not connected
             AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
@@ -258,12 +278,13 @@ public class MainActivity extends Activity {
                         count++;
                         snedString = "UPDATE\tLIST\t" + productSerial + "\t10<END>";
                         need_to_send = true;
+
+                        layout1.setBackgroundColor(getResources().getColor(R.color.background));
                     }
                     else {
                         Log.d("Mylog", "2 itemCode=" + itemCode);
                         imageStatus.setImageResource(R.drawable.red_cross);
                         sendData("1");
-                        RelativeLayout layout1 = (RelativeLayout) findViewById(R.id.layout1);
                         layout1.setBackgroundColor(getResources().getColor(R.color.yellow));
                     }
                 }
@@ -382,6 +403,7 @@ public class MainActivity extends Activity {
                     seekBar.setEnabled(false);
                     swapEnd = true;
                     swapWorking = false;
+                    brandSelector.setSelection(0);
                     //bname = "";
                     //brandName.setText(bname);
                     mySeekBar.setVisibility(View.GONE);
@@ -430,6 +452,18 @@ public class MainActivity extends Activity {
         @Override
         public void onClick(View v) {
             Log.d("Mylog", "enter pressed, ID=" + returnWorkerID);
+            if(nextBrandArray.size()>1 && returnBrandName!=1) {
+                dialog = new AlertDialog.Builder(MainActivity.this).create();
+                dialog.setTitle("警告");
+                dialog.setMessage("未確認下個品牌");
+                dialog.setButton("重試一次",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialoginterface, int i) {
+                            }
+                        });
+                dialog.show();
+                return;
+            }
             mySeekBar.setVisibility(View.VISIBLE);
             mySeekBar.setEnabled(true);
             swapTitle.setText("向右滑動切換品牌");
@@ -518,6 +552,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 sendData("1");
+                layout1.setBackgroundColor(getResources().getColor(R.color.yellow));
             }
         });
         btnTurnOff = (Button) findViewById(R.id.btn_turn_off);
@@ -525,8 +560,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 sendData("0");
-                View view = v.getRootView();
-                view.setBackgroundColor(getResources().getColor(R.color.background));
+                layout1.setBackgroundColor(getResources().getColor(R.color.background));
             }
         });
     }
@@ -582,7 +616,8 @@ public class MainActivity extends Activity {
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                connection.bulkTransfer(endpointOut, bytes, bytes.length, TIMEOUT);
+                if(!debug)
+                    connection.bulkTransfer(endpointOut, bytes, bytes.length, TIMEOUT);
                 /*Time time = new Time("Asia/Tokyo");
                 time.setToNow();
                 String msg = time.year + "/" + (time.month + 1) + "/" + time.monthDay + " " + time.hour + ":" + time.minute + ":" + time.second;
@@ -754,6 +789,25 @@ public class MainActivity extends Activity {
                     s = s.replaceAll("SWAP_MSG\t", "");
                     swapMsg.setVisibility(View.VISIBLE);
                     swapMsg.setText(s);
+                    if(s.contains("此工號不存在")) {
+                        if(task!=null)
+                            task.cancel(true);
+                        swapWorking = true;
+                        Log.d("mylog", "此工號不存在");
+                        AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                        dialog.setTitle("警告");
+                        dialog.setMessage("此工號不存在！");
+                        dialog.setPositiveButton("重試一次",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialoginterface, int i) {
+                                        mySeekBar.setVisibility(View.GONE);
+                                        btn_enter.setEnabled(true);
+                                        swapMsg.setText("請輸入品牌與員工ID");
+                                        Log.d("Mylog", "此工號不存在::ok is pressed, task is: " + task.getStatus());
+                                    }
+                                });
+                        dialog.show();
+                    }
                 } else if(s!=null && s.contains("BC_MSG")) {  //廣播
                     bc_msgWorking = true;
                     Log.d("mylog", "inside BC_MSG");
@@ -816,6 +870,16 @@ public class MainActivity extends Activity {
                 } else if(s!=null && s.contains("SWAP")) {
                     swapWorking = true;
                     Log.d("Mylog", "swap!!");
+                    String[] items = s.split("\t");
+                    nextBrandArray.clear();
+                    if(items.length >= 1) {  //have next brand
+                        nextBrandArray.add("(請選擇)");
+                        nextBrandArray.add(items[1]);
+                        nextBrandAdapter.notifyDataSetChanged();
+                    } else {
+                        nextBrandArray.add("(無)");
+                        nextBrandAdapter.notifyDataSetChanged();
+                    }
                     AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
                     dialog.setTitle("警告");
                     dialog.setMessage("已下達換牌指令！");

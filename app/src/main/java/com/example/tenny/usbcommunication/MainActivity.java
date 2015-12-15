@@ -15,6 +15,7 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -96,6 +97,7 @@ public class MainActivity extends Activity {
     private Spinner brandSelector;
     private int returnBrandName=0;
     private RelativeLayout layout1;
+    private static MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -214,6 +216,8 @@ public class MainActivity extends Activity {
         btn_delete.setOnClickListener(deleteListener);
         layout1 = (RelativeLayout) findViewById(R.id.layout1);
 
+        mediaPlayer = MediaPlayer.create(this, R.raw.alert9);
+
         if(!isNetworkConnected()){  //close when not connected
             AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
             dialog.setTitle("警告");
@@ -286,6 +290,7 @@ public class MainActivity extends Activity {
                         imageStatus.setImageResource(R.drawable.red_cross);
                         sendData("1");
                         layout1.setBackgroundColor(getResources().getColor(R.color.yellow));
+                        mediaPlayer.start();
                     }
                 }
                 return true;

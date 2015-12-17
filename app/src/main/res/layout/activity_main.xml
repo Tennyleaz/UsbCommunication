@@ -570,8 +570,16 @@
                                             android:textAppearance="?android:attr/textAppearanceLarge"
                                             android:text="目標箱數"
                                             android:id="@+id/textView11"
-                                            android:layout_column="2"
-                                            android:paddingEnd="50dp"
+                                            android:layout_marginStart="30dp"
+                                            android:layout_column="2"/>
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:textAppearance="?android:attr/textAppearanceLarge"
+                                            android:text="尚缺箱數"
+                                            android:id="@+id/textView12"
+                                            android:layout_column="3"
+                                            android:paddingEnd="20dp"
                                             android:layout_gravity="end" />
                                     </TableRow>
                                 </TableLayout>

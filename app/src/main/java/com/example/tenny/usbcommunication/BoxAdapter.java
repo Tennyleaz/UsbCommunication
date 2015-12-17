@@ -18,7 +18,7 @@ public class BoxAdapter extends ArrayAdapter<BoxItem> {
     }
 
     static class ItemHolder {
-        public TextView line, box, targetBox;
+        public TextView line, box, targetBox, remainBox;
     }
 
     @Override
@@ -31,6 +31,7 @@ public class BoxAdapter extends ArrayAdapter<BoxItem> {
             viewHolder.box = (TextView) convertView.findViewById(R.id.box);
             viewHolder.line = (TextView) convertView.findViewById(R.id.line);
             viewHolder.targetBox = (TextView) convertView.findViewById(R.id.targetBox);
+            viewHolder.remainBox = (TextView) convertView.findViewById(R.id.remainBox);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ItemHolder) convertView.getTag();
@@ -38,6 +39,8 @@ public class BoxAdapter extends ArrayAdapter<BoxItem> {
         viewHolder.line.setText(i.line);
         viewHolder.box.setText(i.box);
         viewHolder.targetBox.setText(i.targetBox);
+        int r = Integer.parseInt(i.targetBox) - Integer.parseInt(i.box);
+        viewHolder.remainBox.setText(Integer.toString(r));
         return convertView;
     }
 

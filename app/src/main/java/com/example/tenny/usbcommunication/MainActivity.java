@@ -23,7 +23,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.res.ResourcesCompat;
-import android.text.format.Time;
+import android.text.SpannableString;
+import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -47,6 +48,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MainActivity extends Activity {
     static final String TAG = "0305-" + MainActivity.class.getSimpleName();
@@ -77,7 +79,7 @@ public class MainActivity extends Activity {
     private ScrollForeverTextView msg;
     private EditText scannerInput;
     private ImageView imageStatus;
-    private boolean connected, need_to_send, swapWorking, swapEnd, bc_msg_reply, bc_msgWorking, notOnstop=false, hasProduct;
+    private boolean connected, need_to_send, swapWorking, swapEnd, bc_msg_reply, bc_msgWorking, notOnstop=false, hasProduct, swap_msgWorking=false, swap_msg_reply=false;
     private int count;
     private static ProgressDialog pd;
     private String str1, productSerial, itemCode, snedString, returnWorkerID;
@@ -98,6 +100,7 @@ public class MainActivity extends Activity {
     private int returnBrandName=0;
     private RelativeLayout layout1;
     private static MediaPlayer mediaPlayer;
+    private HashMap<String, String> recipe_map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -326,6 +329,10 @@ public class MainActivity extends Activity {
             finish();
             startActivity(intent);
         }
+
+        String q = "QUERY\tRECIPE_LIST<END>";
+        SocketHandler.writeToSocket(q);
+        recipe_map = new HashMap<>();
     }
 
     private boolean isNetworkConnected(){
@@ -353,7 +360,7 @@ public class MainActivity extends Activity {
                 dialog = new AlertDialog.Builder(MainActivity.this).create();
                 dialog.setTitle("警告");
                 dialog.setMessage("伺服器無回應，\n5秒後自動重新連線，若問題持續請洽系統管理員");
-                dialog.setButton("關閉程式",
+                dialog.setButton(DialogInterface.BUTTON_POSITIVE, "關閉程式",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialoginterface, int i) {
                                 android.os.Process.killProcess(android.os.Process.myPid());
@@ -441,6 +448,7 @@ public class MainActivity extends Activity {
 
         scannerInput.requestFocus();
         tryGetUsbPermission();
+        SocketHandler.setSocketTimeout(2500);
     }
 
     private View.OnClickListener deleteListener = new View.OnClickListener() {
@@ -461,7 +469,7 @@ public class MainActivity extends Activity {
                 dialog = new AlertDialog.Builder(MainActivity.this).create();
                 dialog.setTitle("警告");
                 dialog.setMessage("未確認下個品牌");
-                dialog.setButton("重試一次",
+                dialog.setButton(DialogInterface.BUTTON_POSITIVE, "重試一次",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialoginterface, int i) {
                             }
@@ -510,7 +518,7 @@ public class MainActivity extends Activity {
         }
     };
 
-    private void tryGetUsbPermission(){
+    private void tryGetUsbPermission() {
         manager = (UsbManager) getSystemService(Context.USB_SERVICE);
         PendingIntent mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
@@ -754,7 +762,15 @@ public class MainActivity extends Activity {
                     bc_msgWorking = false;
                     Log.d("Mylog", "BC_MSG_OK");
                 }
-                if(bc_msgWorking)
+                if(swap_msg_reply) {
+                    Log.d("Mylog", "to send SWAP_MSG_OK<END>");
+                    String s = "SWAP_MSG_OK<END>";
+                    SocketHandler.writeToSocket(s);
+                    swap_msg_reply = false;
+                    swap_msgWorking = false;
+                    Log.d("Mylog", "SWAP_MSG_OK");
+                }
+                if(bc_msgWorking || swap_msgWorking)
                     continue;
 
                 Log.d("Mylog", "UpdateTask listening...");
@@ -801,8 +817,9 @@ public class MainActivity extends Activity {
                         Log.d("mylog", "此工號不存在");
                         AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
                         dialog.setTitle("警告");
-                        dialog.setMessage("此工號不存在！");
-                        dialog.setPositiveButton("重試一次",
+                        dialog.setMessage("此工號不存在");
+                        dialog.setMessage(setDialogText(s, 3));
+                        dialog.setPositiveButton("重試",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialoginterface, int i) {
                                         mySeekBar.setVisibility(View.GONE);
@@ -812,6 +829,22 @@ public class MainActivity extends Activity {
                                     }
                                 });
                         dialog.show();
+                    } else {
+                        swap_msgWorking = true;
+                        Log.d("mylog", "inside SWAP_MSG");
+                        s = s.replaceAll("SWAP_MSG\t", "");
+                        AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                        dialog.setTitle("廣播");
+                        dialog.setMessage(setDialogText(s, 3));
+                        dialog.setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialoginterface, int i) {
+                                        //send BC_MSG_OK<END>
+                                        swap_msg_reply = true;
+                                    }
+                                });
+                        dialog.setCancelable(false);
+                        dialog.show();
                     }
                 } else if(s!=null && s.contains("BC_MSG")) {  //廣播
                     bc_msgWorking = true;
@@ -819,7 +852,7 @@ public class MainActivity extends Activity {
                     s = s.replaceAll("BC_MSG\t", "");
                     AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
                     dialog.setTitle("廣播");
-                    dialog.setMessage(s);
+                    dialog.setMessage(setDialogText(s, 3));
                     dialog.setPositiveButton("OK",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialoginterface, int i) {
@@ -879,7 +912,7 @@ public class MainActivity extends Activity {
                     nextBrandArray.clear();
                     if(items.length >= 1) {  //have next brand
                         nextBrandArray.add("(請選擇)");
-                        nextBrandArray.add(items[1]);
+                        nextBrandArray.add(recipe_map.get(items[1]));
                         nextBrandAdapter.notifyDataSetChanged();
                     } else {
                         nextBrandArray.add("(無)");
@@ -931,9 +964,26 @@ public class MainActivity extends Activity {
                         }
                     }
                     valueAdapter.notifyDataSetChanged();
+                } else if (s!=null && s.contains("QUERY_REPLY\t")) {
+                    s = s.replaceAll("QUERY_REPLY\t", "");
+                    s = s.replaceAll("<N>", "\n");
+                    s = s.replaceAll("<END>", "");
+                    Log.d("mylog", "new RECIPE_LIST=" + s);
+                    String[] items = s.split("\n");
+                    for(String i: items) {
+                        String[] recipe = i.split("\t");
+                        if(recipe.length>1)
+                            recipe_map.put(recipe[0], recipe[1]);
+                    }
                 }
             }
         }
+    }
+
+    public SpannableString setDialogText(String text, float size) {
+        SpannableString ss = new SpannableString(text);
+        ss.setSpan(new RelativeSizeSpan(size), 0, ss.length(), 0);
+        return ss;
     }
 
     @Override

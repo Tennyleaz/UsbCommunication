@@ -241,6 +241,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void run() {
                     InitServer();  // 耗時的方法
+                    Log.d("mylog", "InitServer finished.");
                     InitOkHandler.sendEmptyMessage(0);  // 執行耗時的方法之後發送消給handler
                 }
             }).start();
@@ -260,13 +261,13 @@ public class MainActivity extends Activity {
                     }
                 }
             }).start();
-            runOnUiThread(new Runnable() {
+            /*runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     while (scannerInput != null && !scannerInput.hasFocus())
                         scannerInput.requestFocus();
                 }
-            });
+            });*/
         }
 
         TextView.OnEditorActionListener scannerTextListener = new TextView.OnEditorActionListener() {
@@ -276,14 +277,16 @@ public class MainActivity extends Activity {
                     if(!hasProduct) return true;
                     productSerial = exampleView.getText().toString();
                     exampleView.setText("");
+                    productSerial = productSerial.replaceAll("[^0-9.]", "");  //replace all non numeric
+                    String itemCode2 = itemCode.replaceAll("[^0-9.]", "");  //replace all non numeric
                     Log.d("Mylog", "Scanner enter captured: " + productSerial);
                     serialText.setText(productSerial);
-                    if( productSerial.equals(itemCode) ) {
+                    if( productSerial.equals(itemCode2) ) {
                         Log.d("Mylog", "1 itemCode=" + itemCode);
                         imageStatus.setImageResource(R.drawable.green_circle);
                         sendData("0");
                         count++;
-                        snedString = "UPDATE\tLIST\t" + productSerial + "\t10<END>";
+                        snedString = "UPDATE\tLIST\t" + itemCode + "\t10<END>";
                         need_to_send = true;
 
                         layout1.setBackgroundColor(getResources().getColor(R.color.background));
@@ -306,7 +309,7 @@ public class MainActivity extends Activity {
         scannerInput.requestFocus();
         scannerInput.setOnTouchListener(foucsHandler);
         Log.d("Mylog", "Before new task");
-        task = new UpdateTask().execute();
+        //task = new UpdateTask().execute();
     }
 
     View.OnTouchListener foucsHandler = new View.OnTouchListener() {
@@ -333,6 +336,9 @@ public class MainActivity extends Activity {
         String q = "QUERY\tRECIPE_LIST<END>";
         SocketHandler.writeToSocket(q);
         recipe_map = new HashMap<>();
+        Log.d("mylog", "to start update task");
+        task = new UpdateTask().execute();
+        Log.d("mylog", "update task started!");
     }
 
     private boolean isNetworkConnected(){
@@ -345,8 +351,11 @@ public class MainActivity extends Activity {
     private Handler InitOkHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {// handler接收到消息後就會執行此方法
+            Log.d("mylog", "InitOkHandler started.");
             updateUI();
+            Log.d("mylog", "after updateUI, init OK, to dismiss pd");
             pd.dismiss();// 關閉ProgressDialog
+            Log.d("mylog", "pd is dismissed.");
         }
     };
 
@@ -380,6 +389,17 @@ public class MainActivity extends Activity {
                         e.printStackTrace();
                         Log.e("mylog", "InterruptedException e=" + e);
                     }
+                    if(connected) return;
+                    Thread[] threads = new Thread[Thread.activeCount()];  //close all running threads
+                    Thread.enumerate(threads);
+                    for (Thread t : threads) {
+                        if(t!=null) t.interrupt();
+                    }
+                    if(task!=null) {
+                        task.cancel(true);
+                    }
+                    try{ unregisterReceiver(mUsbPermissionActionReceiver); }
+                    catch (IllegalArgumentException e) { System.out.println(e); }
                     if(dialog!=null && dialog.isShowing())
                         dialog.cancel();
                     Intent intent = new Intent(MainActivity.this, MainActivity.class);
@@ -392,13 +412,13 @@ public class MainActivity extends Activity {
 
     private void updateUI() {
         if(str1!=null && str1.contains("CONNECT_OK")) {
-            //message.setText("伺服器辨識成功");
             severState.setText("伺服器辨識成功");
             severState.setTextColor(Color.GREEN);
             connected = true;
         }
         else {
             message.setText(str1);
+            connected = false;
         }
         msg.setText("無廣播資料");
         msg.setSelected(true);
@@ -446,9 +466,11 @@ public class MainActivity extends Activity {
             }
         });
 
+        Log.d("mylog", "updateUI going to  finish...");
         scannerInput.requestFocus();
         tryGetUsbPermission();
-        SocketHandler.setSocketTimeout(2500);
+        //SocketHandler.setSocketTimeout(2500);
+        Log.d("mylog", "updateUI finished");
     }
 
     private View.OnClickListener deleteListener = new View.OnClickListener() {
@@ -976,6 +998,10 @@ public class MainActivity extends Activity {
                             recipe_map.put(recipe[0], recipe[1]);
                     }
                 }
+                if (s!=null && s.contains("CONNECT_OK<END>")) {
+                    active = true;
+                    connected = true;
+                }
             }
         }
     }
@@ -990,7 +1016,8 @@ public class MainActivity extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
             Log.d("Mylog", "back is pressed");
-            unregisterReceiver(mUsbPermissionActionReceiver);
+            try{ unregisterReceiver(mUsbPermissionActionReceiver); }
+            catch (IllegalArgumentException e) { System.out.println(e); }
             Log.d("Mylog", "back is pressed 2");
             task.cancel(true);
             Log.d("Mylog", "back is pressed 3");
@@ -1005,12 +1032,19 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public void onStop(){
-        //listeningTask.cancel(true);
-        task.cancel(true);
-        SocketHandler.closeSocket();
+    public void onPause(){
+        super.onPause();
+        if(task!=null) {
+            task.cancel(true);
+        }
+        Thread[] threads = new Thread[Thread.activeCount()];  //close all running threads
+        Thread.enumerate(threads);
+        for (Thread t : threads) {
+            if(t!=null) t.interrupt();
+        }
+        try{ unregisterReceiver(mUsbPermissionActionReceiver); }
+        catch (IllegalArgumentException e) { System.out.println(e); }
         finish();
-        super.onStop();
     }
 }
 

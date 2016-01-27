@@ -82,7 +82,7 @@ public class MainActivity extends Activity {
     private boolean connected, need_to_send, swapWorking, swapEnd, bc_msg_reply, bc_msgWorking, notOnstop=false, hasProduct, swap_msgWorking=false, swap_msg_reply=false;
     private int count;
     private static ProgressDialog pd;
-    private String str1, productSerial, itemCode, snedString, returnWorkerID;
+    private String str1, productSerial, itemCode, snedString, returnWorkerID, key;
     private AsyncTask task = null;
     private UsbManager manager;
     private UsbDevice device;
@@ -932,14 +932,21 @@ public class MainActivity extends Activity {
                     Log.d("Mylog", "swap!!");
                     String[] items = s.split("\t");
                     nextBrandArray.clear();
-                    if(items.length >= 1) {  //have next brand
+                    if(items.length > 1) {  //have next brand
                         nextBrandArray.add("(請選擇)");
-                        nextBrandArray.add(recipe_map.get(items[1]));
-                        nextBrandAdapter.notifyDataSetChanged();
+                        key = items[1];
+                        String value = recipe_map.get(key);
+                        Log.d("mylog", "items[1] is " + key + ", next brand is " + value);
+                        if(value != null) {
+                            nextBrandArray.add(value);
+                            key = null;
+                        } else {
+                            Log.d("mylog", "value is null");
+                        }
                     } else {
                         nextBrandArray.add("(無)");
-                        nextBrandAdapter.notifyDataSetChanged();
                     }
+                    nextBrandAdapter.notifyDataSetChanged();
                     AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
                     dialog.setTitle("警告");
                     dialog.setMessage("已下達換牌指令！");
@@ -996,6 +1003,11 @@ public class MainActivity extends Activity {
                         String[] recipe = i.split("\t");
                         if(recipe.length>1)
                             recipe_map.put(recipe[0], recipe[1]);
+                    }
+                    if(key != null) {
+                        nextBrandArray.add(recipe_map.get(key));
+                        nextBrandAdapter.notifyDataSetChanged();
+                        key = null;
                     }
                 }
                 if (s!=null && s.contains("CONNECT_OK<END>")) {

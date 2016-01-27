@@ -932,7 +932,7 @@ public class MainActivity extends Activity {
                     Log.d("Mylog", "swap!!");
                     String[] items = s.split("\t");
                     nextBrandArray.clear();
-                    if(items.length >= 1) {  //have next brand
+                    if(items.length > 1) {  //have next brand
                         nextBrandArray.add("(請選擇)");
                         nextBrandArray.add(recipe_map.get(items[1]));
                         nextBrandAdapter.notifyDataSetChanged();
